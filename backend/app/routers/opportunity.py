@@ -52,3 +52,16 @@ def solution_design(input: SolutionDesignInput):
         return json.loads(clean)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+class SolutionDesignInputCalc(BaseModel):
+    solution_design: dict
+
+@router.post("/opportunity/calculator")
+def calculator(input: SolutionDesignInputCalc):
+    try:
+        from app.agents.proposal_agent import generate_calculator_json
+        result = generate_calculator_json(input.solution_design)
+        clean = result.strip().replace("```json", "").replace("```", "").strip()
+        return json.loads(clean)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))

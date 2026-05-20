@@ -92,6 +92,39 @@ Con base en el Documento Técnico Base, diseña la solución técnica. Responde 
   }
 }"""
 
+CALCULATOR_PROMPT = """Eres un Solutions Architect Senior de Applying Consulting, AWS Advanced Consulting Partner.
+
+Con base en el diseño de solución AWS, genera el JSON para la extensión RPA de la Calculadora AWS.
+
+REGLAS:
+- Usa SIEMPRE region us-east-1 salvo que el diseño indique otra
+- Los search_term deben coincidir exactamente con como aparecen en calculator.aws
+- Los fields deben usar los nombres exactos de los campos del formulario de calculator.aws
+- Incluye SOLO los servicios que están en el diseño de solución
+- Las cantidades deben ser números como strings
+
+Responde SOLO con un JSON con esta estructura exacta:
+{
+  "project": "nombre del proyecto",
+  "region": "us-east-1",
+  "services": [
+    {
+      "name": "nombre comercial del servicio",
+      "search_term": "término exacto para buscar en calculator.aws",
+      "fields": {
+        "nombre exacto del campo": "valor como string"
+      }
+    }
+  ]
+}"""
+
+def generate_calculator_json(solution_design: dict) -> str:
+    model = get_bedrock_model()
+    agent = Agent(model=model, system_prompt=CALCULATOR_PROMPT)
+    context = f"DISEÑO DE SOLUCIÓN:\n{json.dumps(solution_design, ensure_ascii=False, indent=2)}"
+    result = agent(context)
+    return str(result)
+
 def qualify_opportunity(crm_context: str) -> str:
     model = get_bedrock_model()
     agent = Agent(model=model, system_prompt=QUALIFY_PROMPT)

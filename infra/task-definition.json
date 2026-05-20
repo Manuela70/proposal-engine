@@ -1,0 +1,35 @@
+{
+  "family": "proposal-engine-backend",
+  "networkMode": "awsvpc",
+  "requiresCompatibilities": ["FARGATE"],
+  "cpu": "512",
+  "memory": "1024",
+  "executionRoleArn": "arn:aws:iam::467449736571:role/proposal-engine-task-role",
+  "taskRoleArn": "arn:aws:iam::467449736571:role/proposal-engine-task-role",
+  "containerDefinitions": [
+    {
+      "name": "proposal-engine-backend",
+      "image": "467449736571.dkr.ecr.us-east-1.amazonaws.com/proposal-engine-backend:latest",
+      "portMappings": [
+        {
+          "containerPort": 8000,
+          "protocol": "tcp"
+        }
+      ],
+      "environment": [
+        {
+          "name": "AWS_REGION",
+          "value": "us-east-1"
+        }
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/proposal-engine-backend",
+          "awslogs-region": "us-east-1",
+          "awslogs-stream-prefix": "ecs"
+        }
+      }
+    }
+  ]
+}
