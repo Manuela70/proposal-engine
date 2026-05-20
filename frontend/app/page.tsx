@@ -1,65 +1,138 @@
-import Image from "next/image";
+'use client'
+
+import { useState } from 'react'
 
 export default function Home() {
+  const [context, setContext] = useState('')
+  const [qualification, setQualification] = useState<any>(null)
+  const [discovery, setDiscovery] = useState<any>(null)
+  const [loading, setLoading] = useState(false)
+  const [step, setStep] = useState<'idle' | 'qualified' | 'discovery'>('idle')
+
+  const qualify = async () => {
+    setLoading(true)
+    try {
+      const res = await fetch('http://localhost:8000/api/opportunity/qualify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ crm_context: context })
+      })
+      const data = await res.json()
+      setQualification(data)
+      setStep('qualified')
+    } catch (e) {
+      alert('Error al calificar la oportunidad')
+    }
+    setLoading(false)
+  }
+
+  const getDiscovery = async () => {
+    setLoading(true)
+    try {
+      const res = await fetch('http://localhost:8000/api/opportunity/discovery', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ crm_context: context })
+      })
+      const data = await res.json()
+      setDiscovery(data)
+      setStep('discovery')
+    } catch (e) {
+      alert('Error al generar preguntas')
+    }
+    setLoading(false)
+  }
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+    <main className="min-h-screen bg-gray-50 p-8">
+      <div className="max-w-4xl mx-auto">
+        <h1 className="text-2xl font-bold text-gray-900 mb-2">Proposal Engine</h1>
+        <p className="text-gray-500 mb-8">Applying Consulting — Pipeline de Propuestas</p>
+
+        {/* Input */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Contexto del CRM
+          </label>
+          <textarea
+            className="w-full h-40 border border-gray-300 rounded-lg p-3 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="Pega aquí las notas del CRM sobre la oportunidad..."
+            value={context}
+            onChange={(e) => setContext(e.target.value)}
+          />
+          <button
+            onClick={qualify}
+            disabled={loading || !context}
+            className="mt-4 bg-blue-600 text-white px-6 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 disabled:opacity-50"
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+            {loading ? 'Procesando...' : 'Calificar Oportunidad'}
+          </button>
         </div>
-      </main>
-    </div>
-  );
+
+        {/* Qualification Result */}
+        {qualification && (
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
+            <h2 className="text-lg font-semibold text-gray-800 mb-4">Calificación Técnica</h2>
+            <div className="grid grid-cols-3 gap-4 mb-4">
+              <div className="bg-gray-50 rounded-lg p-3">
+                <p className="text-xs text-gray-500 mb-1">Viabilidad</p>
+                <p className="font-semibold text-gray-900">{qualification.viabilidad}</p>
+              </div>
+              <div className="bg-gray-50 rounded-lg p-3">
+                <p className="text-xs text-gray-500 mb-1">Complejidad</p>
+                <p className="font-semibold text-gray-900">{qualification.complejidad}</p>
+              </div>
+              <div className="bg-gray-50 rounded-lg p-3">
+                <p className="text-xs text-gray-500 mb-1">Decisión</p>
+                <p className={`font-semibold ${qualification.decision === 'Go' ? 'text-green-600' : qualification.decision === 'No Go' ? 'text-red-600' : 'text-yellow-600'}`}>
+                  {qualification.decision}
+                </p>
+              </div>
+            </div>
+            <p className="text-sm text-gray-600 mb-3">{qualification.justificacion_decision}</p>
+            <div>
+              <p className="text-xs font-medium text-gray-500 mb-2">RIESGOS</p>
+              <ul className="space-y-1">
+                {qualification.riesgos?.map((r: string, i: number) => (
+                  <li key={i} className="text-sm text-gray-700 flex items-start gap-2">
+                    <span className="text-yellow-500 mt-0.5">⚠</span> {r}
+                  </li>
+                ))}
+              </ul>
+            </div>
+            {qualification.decision !== 'No Go' && (
+              <button
+                onClick={getDiscovery}
+                disabled={loading}
+                className="mt-4 bg-gray-900 text-white px-6 py-2 rounded-lg text-sm font-medium hover:bg-gray-800 disabled:opacity-50"
+              >
+                {loading ? 'Generando...' : 'Generar Preguntas de Discovery'}
+              </button>
+            )}
+          </div>
+        )}
+
+        {/* Discovery Questions */}
+        {discovery && (
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <h2 className="text-lg font-semibold text-gray-800 mb-4">Preguntas de Discovery</h2>
+            {['preguntas_funcionales', 'preguntas_tecnicas', 'preguntas_arquitectura'].map((key) => (
+              <div key={key} className="mb-4">
+                <p className="text-xs font-medium text-gray-500 uppercase mb-2">
+                  {key.replace('preguntas_', '').replace('_', ' ')}
+                </p>
+                <ul className="space-y-1">
+                  {discovery[key]?.map((q: string, i: number) => (
+                    <li key={i} className="text-sm text-gray-700 flex items-start gap-2">
+                      <span className="text-blue-500">→</span> {q}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </main>
+  )
 }
