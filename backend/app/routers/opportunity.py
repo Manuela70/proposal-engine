@@ -25,7 +25,7 @@ def discovery(input: OpportunityInput):
         return json.loads(clean)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-        
+
 class TechnicalBaseInput(BaseModel):
     crm_context: str
     discovery_notes: str
@@ -35,6 +35,19 @@ def technical_base(input: TechnicalBaseInput):
     try:
         from app.agents.proposal_agent import generate_technical_base
         result = generate_technical_base(input.crm_context, input.discovery_notes)
+        clean = result.strip().replace("```json", "").replace("```", "").strip()
+        return json.loads(clean)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+class SolutionDesignInput(BaseModel):
+    technical_base: dict
+
+@router.post("/opportunity/solution-design")
+def solution_design(input: SolutionDesignInput):
+    try:
+        from app.agents.proposal_agent import generate_solution_design
+        result = generate_solution_design(input.technical_base)
         clean = result.strip().replace("```json", "").replace("```", "").strip()
         return json.loads(clean)
     except Exception as e:
