@@ -8,6 +8,7 @@ export default function Home() {
   const [discovery, setDiscovery] = useState<any>(null)
   const [technicalBase, setTechnicalBase] = useState<any>(null)
   const [solutionDesign, setSolutionDesign] = useState<any>(null)
+  const [calculatorJson, setCalculatorJson] = useState<any>(null)
   const [discoveryNotes, setDiscoveryNotes] = useState('')
   const [loading, setLoading] = useState(false)
   const [step, setStep] = useState<'idle' | 'qualified' | 'discovery'>('idle')
@@ -77,6 +78,22 @@ export default function Home() {
     }
     setLoading(false)
   }
+
+  const getCalculatorJson = async () => {
+  setLoading(true)
+  try {
+    const res = await fetch('http://localhost:8000/api/opportunity/calculator', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ solution_design: solutionDesign })
+    })
+    const data = await res.json()
+    setCalculatorJson(data)
+  } catch (e) {
+    alert('Error al generar JSON de calculadora')
+  }
+  setLoading(false)
+}
 
   return (
     <main className="min-h-screen bg-gray-50 p-8">
@@ -318,8 +335,47 @@ export default function Home() {
                 ))}
               </ul>
             </div>
+            <button
+  onClick={getCalculatorJson}
+  disabled={loading}
+  className="mt-4 bg-blue-600 text-white px-6 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 disabled:opacity-50"
+>
+  {loading ? 'Generando...' : 'Generar JSON Calculadora'}
+</button>
           </div>
         )}
+
+        {calculatorJson && (
+  <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
+    <h2 className="text-lg font-semibold text-gray-800 mb-2">JSON Calculadora AWS</h2>
+    <p className="text-xs text-gray-500 mb-4">Copia este JSON y pégalo en la extensión RPA de Chrome</p>
+    
+    <div className="bg-gray-900 rounded-lg p-4 mb-4 relative">
+      <pre className="text-xs text-green-400 overflow-auto max-h-64">
+        {JSON.stringify(calculatorJson, null, 2)}
+      </pre>
+      <button
+        onClick={() => navigator.clipboard.writeText(JSON.stringify(calculatorJson, null, 2))}
+        className="absolute top-3 right-3 bg-gray-700 text-white text-xs px-3 py-1 rounded hover:bg-gray-600"
+      >
+        Copiar
+      </button>
+    </div>
+
+    <div className="bg-gray-50 rounded-lg p-3">
+      <p className="text-xs font-medium text-gray-500 mb-2">SERVICIOS INCLUIDOS</p>
+      <ul className="space-y-1">
+        {calculatorJson.services?.map((s: any, i: number) => (
+          <li key={i} className="text-sm text-gray-700 flex items-center gap-2">
+            <span className="text-orange-500">▸</span>
+            <span className="font-medium">{s.name}</span>
+            <span className="text-gray-400 text-xs">— {Object.keys(s.fields).length} campos</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </div>
+)}
 
       </div>
     </main>
