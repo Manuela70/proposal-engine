@@ -6,6 +6,8 @@ export default function Home() {
   const [context, setContext] = useState('')
   const [qualification, setQualification] = useState<any>(null)
   const [discovery, setDiscovery] = useState<any>(null)
+  const [technicalBase, setTechnicalBase] = useState<any>(null)
+  const [discoveryNotes, setDiscoveryNotes] = useState('')
   const [loading, setLoading] = useState(false)
   const [step, setStep] = useState<'idle' | 'qualified' | 'discovery'>('idle')
 
@@ -42,6 +44,22 @@ export default function Home() {
     }
     setLoading(false)
   }
+
+  const getTechnicalBase = async () => {
+  setLoading(true)
+  try {
+    const res = await fetch('http://localhost:8000/api/opportunity/technical-base', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ crm_context: context, discovery_notes: discoveryNotes })
+    })
+    const data = await res.json()
+    setTechnicalBase(data)
+  } catch (e) {
+    alert('Error al generar documento técnico')
+  }
+  setLoading(false)
+}
 
   return (
     <main className="min-h-screen bg-gray-50 p-8">
@@ -132,6 +150,83 @@ export default function Home() {
             ))}
           </div>
         )}
+        {/* Discovery Notes Input */}
+{step === 'discovery' && (
+  <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
+    <label className="block text-sm font-medium text-gray-700 mb-2">
+      Notas de la Reunión de Discovery
+    </label>
+    <textarea
+      className="w-full h-40 border border-gray-300 rounded-lg p-3 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+      placeholder="Pega aquí las notas de lo que dijo el cliente en la reunión..."
+      value={discoveryNotes}
+      onChange={(e) => setDiscoveryNotes(e.target.value)}
+    />
+    <button
+      onClick={getTechnicalBase}
+      disabled={loading || !discoveryNotes}
+      className="mt-4 bg-blue-600 text-white px-6 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 disabled:opacity-50"
+    >
+      {loading ? 'Generando...' : 'Generar Documento Técnico Base'}
+    </button>
+  </div>
+)}
+
+{/* Technical Base */}
+{technicalBase && (
+  <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
+    <h2 className="text-lg font-semibold text-gray-800 mb-4">Documento Técnico Base</h2>
+
+    <div className="mb-4">
+      <p className="text-xs font-medium text-gray-500 uppercase mb-2">Resumen Ejecutivo</p>
+      <p className="text-sm text-gray-700">{technicalBase.resumen_ejecutivo}</p>
+    </div>
+
+    <div className="mb-4">
+      <p className="text-xs font-medium text-gray-500 uppercase mb-2">Requerimientos Funcionales</p>
+      <ul className="space-y-1">
+        {technicalBase.requerimientos_funcionales?.map((r: any) => (
+          <li key={r.id} className="text-sm text-gray-700 flex items-start gap-2">
+            <span className="text-blue-500 font-mono text-xs mt-0.5">{r.id}</span>
+            <span>{r.descripcion}</span>
+            <span className={`ml-auto text-xs px-2 py-0.5 rounded-full ${r.prioridad === 'Alta' ? 'bg-red-100 text-red-700' : r.prioridad === 'Media' ? 'bg-yellow-100 text-yellow-700' : 'bg-green-100 text-green-700'}`}>
+              {r.prioridad}
+            </span>
+          </li>
+        ))}
+      </ul>
+    </div>
+
+    <div className="mb-4">
+      <p className="text-xs font-medium text-gray-500 uppercase mb-2">Semáforo de Riesgos</p>
+      <div className="grid grid-cols-3 gap-3">
+        {['verde', 'amarillo', 'rojo'].map((color) => (
+          <div key={color} className={`rounded-lg p-3 ${color === 'verde' ? 'bg-green-50' : color === 'amarillo' ? 'bg-yellow-50' : 'bg-red-50'}`}>
+            <p className={`text-xs font-medium mb-1 ${color === 'verde' ? 'text-green-700' : color === 'amarillo' ? 'text-yellow-700' : 'text-red-700'}`}>
+              {color.charAt(0).toUpperCase() + color.slice(1)}
+            </p>
+            <ul className="space-y-1">
+              {technicalBase.semaforo_riesgos?.[color]?.map((r: string, i: number) => (
+                <li key={i} className="text-xs text-gray-700">{r}</li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
+    </div>
+
+    <div>
+      <p className="text-xs font-medium text-gray-500 uppercase mb-2">Puntos Pendientes</p>
+      <ul className="space-y-1">
+        {technicalBase.puntos_pendientes?.map((p: string, i: number) => (
+          <li key={i} className="text-sm text-red-700 flex items-start gap-2">
+            <span>⚑</span> {p}
+          </li>
+        ))}
+      </ul>
+    </div>
+  </div>
+)}
       </div>
     </main>
   )

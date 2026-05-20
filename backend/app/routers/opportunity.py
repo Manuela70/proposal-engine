@@ -25,3 +25,17 @@ def discovery(input: OpportunityInput):
         return json.loads(clean)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+        
+class TechnicalBaseInput(BaseModel):
+    crm_context: str
+    discovery_notes: str
+
+@router.post("/opportunity/technical-base")
+def technical_base(input: TechnicalBaseInput):
+    try:
+        from app.agents.proposal_agent import generate_technical_base
+        result = generate_technical_base(input.crm_context, input.discovery_notes)
+        clean = result.strip().replace("```json", "").replace("```", "").strip()
+        return json.loads(clean)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))

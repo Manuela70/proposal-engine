@@ -35,7 +35,32 @@ Genera las preguntas de discovery técnico para esta oportunidad. Responde SOLO 
   "preguntas_tecnicas": ["...", "..."],
   "preguntas_arquitectura": ["...", "..."]
 }"""
+TECHNICAL_BASE_PROMPT = """Eres un Solutions Architect Senior de Applying Consulting, AWS Advanced Consulting Partner.
 
+Con base en el contexto del discovery, genera el Documento Técnico Base. Responde SOLO con un JSON con esta estructura exacta:
+{
+  "resumen_ejecutivo": "...",
+  "actores": [{"nombre": "...", "rol": "...", "responsabilidad": "..."}],
+  "requerimientos_funcionales": [{"id": "RF-01", "descripcion": "...", "prioridad": "Alta | Media | Baja"}],
+  "requerimientos_no_funcionales": [{"id": "RNF-01", "descripcion": "...", "categoria": "..."}],
+  "reglas_de_negocio": ["..."],
+  "integraciones": [{"sistema": "...", "tipo": "...", "descripcion": "..."}],
+  "supuestos": ["[INFERIDO] ..." ],
+  "puntos_pendientes": ["[CRÍTICO] ..."],
+  "semaforo_riesgos": {
+    "verde": ["..."],
+    "amarillo": ["..."],
+    "rojo": ["..."]
+  }
+}"""
+
+def generate_technical_base(crm_context: str, discovery_notes: str) -> str:
+    model = get_bedrock_model()
+    agent = Agent(model=model, system_prompt=TECHNICAL_BASE_PROMPT)
+    full_context = f"CONTEXTO CRM:\n{crm_context}\n\nNOTAS DE DISCOVERY:\n{discovery_notes}"
+    result = agent(full_context)
+    return str(result)
+    
 def qualify_opportunity(crm_context: str) -> dict:
     model = get_bedrock_model()
     agent = Agent(model=model, system_prompt=QUALIFY_PROMPT)
