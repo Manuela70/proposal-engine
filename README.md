@@ -233,4 +233,4 @@ Además del pipeline completo, cada agente está disponible como herramienta sue
 
 ---
 
-*Applying Consulting — AWS Advanced Tier Services Partner — Perú y Colombia*
+
