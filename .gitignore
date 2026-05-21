@@ -1,0 +1,44 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+venv/
+env/
+.env
+*.egg-info/
+dist/
+build/
+
+# Node
+node_modules/
+.next/
+.turbo/
+*.tsbuildinfo
+
+# AWS / Secrets
+.env
+.env.local
+.env.production
+*.pem
+*.key
+
+# KB docs (archivos de clientes, no van al repo)
+backend/kb_docs/
+
+# Debug
+backend/debug_xml_error.xml
+
+# OS
+.DS_Store
+Thumbs.db
+*.swp
+
+# IDE
+.vscode/settings.json
+.idea/
+
+# Logs
+*.log
+uvicorn.log
