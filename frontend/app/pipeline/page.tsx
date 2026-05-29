@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import FileUpload from '@/app/components/FileUpload'
 
@@ -13,7 +13,7 @@ function getDownstream(agente: string): string[] {
   return idx >= 0 ? PIPELINE_ORDER.slice(idx + 1) : []
 }
 
-export default function PipelinePage() {
+function PipelineContent() {
   const searchParams = useSearchParams()
 
   // ── Oportunidad ────────────────────────────────────────────────────────────
@@ -923,5 +923,13 @@ export default function PipelinePage() {
         )}
       </div>
     </main>
+  )
+}
+
+export default function PipelinePage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-gray-50 flex items-center justify-center"><p className="text-gray-500">Cargando...</p></div>}>
+      <PipelineContent />
+    </Suspense>
   )
 }
