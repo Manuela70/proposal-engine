@@ -8,9 +8,13 @@ from dotenv import load_dotenv
 load_dotenv()
 
 def get_bedrock_model():
-    session = boto3.Session(
-        profile_name=os.getenv("AWS_PROFILE", "AdministratorAccess-467449736571")
-    )
+    # En ECS, boto3 usa automáticamente el IAM Role del task
+    # Solo usar profile_name en desarrollo local
+    session_kwargs = {}
+    if os.getenv("AWS_PROFILE"):
+        session_kwargs["profile_name"] = os.getenv("AWS_PROFILE")
+    
+    session = boto3.Session(**session_kwargs)
     return BedrockModel(
         model_id="amazon.nova-pro-v1:0",
         boto_session=session
@@ -380,11 +384,13 @@ Implementa los cambios solicitados: agregar/quitar servicios, cambiar conexiones
 Responde SOLO con el XML completo actualizado. Sin texto adicional, sin bloques de código markdown."""
 
 def generate_drawio(solution_design: dict) -> str:
+    session_kwargs = {}
+    if os.getenv("AWS_PROFILE"):
+        session_kwargs["profile_name"] = os.getenv("AWS_PROFILE")
+    
     model = BedrockModel(
         model_id="us.anthropic.claude-sonnet-4-5-20250929-v1:0",
-        boto_session=boto3.Session(
-            profile_name=os.getenv("AWS_PROFILE", "AdministratorAccess-467449736571")
-        )
+        boto_session=boto3.Session(**session_kwargs)
     )
     agent = Agent(model=model, system_prompt=DRAWIO_PROMPT)
     context = f"DISEÑO DE SOLUCIÓN AWS:\n{json.dumps(solution_design, ensure_ascii=False, indent=2)}"
@@ -392,11 +398,13 @@ def generate_drawio(solution_design: dict) -> str:
     return str(result)
 
 def refine_drawio(current_xml: str, feedback: str) -> str:
+    session_kwargs = {}
+    if os.getenv("AWS_PROFILE"):
+        session_kwargs["profile_name"] = os.getenv("AWS_PROFILE")
+    
     model = BedrockModel(
         model_id="us.anthropic.claude-sonnet-4-5-20250929-v1:0",
-        boto_session=boto3.Session(
-            profile_name=os.getenv("AWS_PROFILE", "AdministratorAccess-467449736571")
-        )
+        boto_session=boto3.Session(**session_kwargs)
     )
     agent = Agent(model=model, system_prompt=DRAWIO_REFINER_PROMPT)
     context = f"XML ACTUAL:\n{current_xml}\n\nFEEDBACK DEL USUARIO:\n{feedback}"
@@ -463,9 +471,11 @@ def refine_estimation(current_estimation: dict, feedback: str) -> str:
 
 def extract_document_context(file_bytes: bytes, file_format: str, file_name: str, existing_context: str = "") -> str:
     """Extrae contexto relevante de un documento usando Bedrock. El archivo nunca se persiste."""
-    session = boto3.Session(
-        profile_name=os.getenv("AWS_PROFILE", "AdministratorAccess-467449736571")
-    )
+    session_kwargs = {}
+    if os.getenv("AWS_PROFILE"):
+        session_kwargs["profile_name"] = os.getenv("AWS_PROFILE")
+    
+    session = boto3.Session(**session_kwargs)
     client = session.client("bedrock-runtime", region_name="us-east-1")
 
     # Formatos soportados por Bedrock

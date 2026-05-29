@@ -12,14 +12,19 @@ from dotenv import load_dotenv
 load_dotenv()
 
 DB_URL = os.getenv("DATABASE_URL", "").replace("postgresql+asyncpg://", "postgresql://")
-AWS_PROFILE = os.getenv("AWS_PROFILE", "AdministratorAccess-467449736571")
 
 TITAN_MODEL = "amazon.titan-embed-text-v2:0"
 EMBED_DIM = 1024
 
 
 def get_bedrock_client():
-    session = boto3.Session(profile_name=AWS_PROFILE)
+    # En ECS, boto3 usa automáticamente el IAM Role del task
+    # Solo usar profile_name en desarrollo local
+    session_kwargs = {}
+    if os.getenv("AWS_PROFILE"):
+        session_kwargs["profile_name"] = os.getenv("AWS_PROFILE")
+    
+    session = boto3.Session(**session_kwargs)
     return session.client("bedrock-runtime", region_name="us-east-1")
 
 
