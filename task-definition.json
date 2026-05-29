@@ -1,0 +1,47 @@
+{
+  "family": "proposal-engine-backend",
+  "networkMode": "awsvpc",
+  "requiresCompatibilities": ["FARGATE"],
+  "cpu": "512",
+  "memory": "1024",
+  "executionRoleArn": "arn:aws:iam::745783559610:role/proposal-engine-task-role",
+  "taskRoleArn": "arn:aws:iam::745783559610:role/proposal-engine-task-role",
+  "containerDefinitions": [
+    {
+      "name": "proposal-engine-backend",
+      "image": "745783559610.dkr.ecr.us-east-1.amazonaws.com/proposal-engine-backend:latest",
+      "portMappings": [
+        {
+          "containerPort": 8000,
+          "protocol": "tcp"
+        }
+      ],
+      "environment": [
+        {
+          "name": "AWS_REGION",
+          "value": "us-east-1"
+        },
+        {
+          "name": "DATABASE_URL",
+          "value": "postgresql+asyncpg://proposaladmin:1097780927Ma_@proposal-engine-db.cluster-c2pkieg846gv.us-east-1.rds.amazonaws.com:5432/proposal_engine"
+        }
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/proposal-engine-backend",
+          "awslogs-region": "us-east-1",
+          "awslogs-stream-prefix": "ecs",
+          "awslogs-create-group": "true"
+        }
+      },
+      "essential": true
+    }
+  ],
+  "tags": [
+    {"key": "Project", "value": "proposal-engine"},
+    {"key": "Environment", "value": "dev"},
+    {"key": "Owner", "value": "manu"},
+    {"key": "ManagedBy", "value": "cli"}
+  ]
+}

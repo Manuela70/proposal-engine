@@ -2,7 +2,7 @@
 import { useState } from 'react'
 import FileUpload from '@/app/components/FileUpload'
 
-const API_URL = 'http://localhost:8000'
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
 
 export default function CalificadorPage() {
   const [context, setContext] = useState('')

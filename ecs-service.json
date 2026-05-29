@@ -1,0 +1,32 @@
+{
+  "cluster": "proposal-engine",
+  "serviceName": "proposal-engine-backend",
+  "taskDefinition": "proposal-engine-backend",
+  "desiredCount": 1,
+  "launchType": "FARGATE",
+  "networkConfiguration": {
+    "awsvpcConfiguration": {
+      "subnets": [
+        "subnet-0093434a852862427",
+        "subnet-00b0d21b63656c1ff"
+      ],
+      "securityGroups": [
+        "sg-0bba5a274855442bd"
+      ],
+      "assignPublicIp": "ENABLED"
+    }
+  },
+  "loadBalancers": [
+    {
+      "targetGroupArn": "arn:aws:elasticloadbalancing:us-east-1:745783559610:targetgroup/proposal-engine-tg/775365e607046e6b",
+      "containerName": "proposal-engine-backend",
+      "containerPort": 8000
+    }
+  ],
+  "tags": [
+    {"key": "Project", "value": "proposal-engine"},
+    {"key": "Environment", "value": "dev"},
+    {"key": "Owner", "value": "manu"},
+    {"key": "ManagedBy", "value": "cli"}
+  ]
+}

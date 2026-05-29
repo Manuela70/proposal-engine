@@ -11,10 +11,10 @@ from sqlalchemy.orm import DeclarativeBase
 from app.models import SuccessCase, ClientPortfolio, User
 from app.database import Base
 
-HOST = "proposal-engine-db.cluster-cs6lxkji1r2g.us-east-1.rds.amazonaws.com"
-USER = "proposaladmin"
+HOST = os.getenv("DB_HOST", "proposal-engine-db.cluster-c2pkieg846gv.us-east-1.rds.amazonaws.com")
+USER = os.getenv("DB_USER", "proposaladmin")
 PASSWORD = os.getenv("DB_PASSWORD", "1097780927Ma_")
-DB_NAME = "proposal_engine"
+DB_NAME = os.getenv("DB_NAME", "proposal_engine")
 
 ssl_ctx = ssl.create_default_context()
 ssl_ctx.check_hostname = False

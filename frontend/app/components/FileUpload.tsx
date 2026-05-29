@@ -1,7 +1,7 @@
 'use client'
 import { useState, useRef } from 'react'
 
-const API_URL = 'http://localhost:8000'
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
 
 const SUPPORTED_FORMATS = ['pdf', 'txt', 'md', 'csv', 'html', 'doc', 'docx', 'xls', 'xlsx']
 

@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from 'react'
 import { useSearchParams } from 'next/navigation'
 import FileUpload from '@/app/components/FileUpload'
 
-const API_URL = 'http://localhost:8000'
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
 
 const PIPELINE_ORDER = ['qualify', 'discovery', 'technical_base', 'solution_design', 'calculator', 'estimation', 'drawio']
 
