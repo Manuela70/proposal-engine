@@ -9,7 +9,8 @@ app.add_middleware(
     allow_origins=[
         "http://localhost:3000",
         "https://main.dgvkkk4bm2pct.amplifyapp.com",
-        "https://main.d1xg7rdqzh0xm0.amplifyapp.com"
+        "https://main.d1xg7rdqzh0xm0.amplifyapp.com",
+        "https://d1bg34oa030nyk.cloudfront.net"
     ],
     allow_credentials=True,
     allow_methods=["*"],
